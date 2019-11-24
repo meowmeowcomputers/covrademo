@@ -10,15 +10,6 @@ const {ObjectID}  = require('mongodb')
 require('./connection');
 //ZToO0nmvcqwC1ma2
 const uri = "mongodb+srv://ryan:ZToO0nmvcqwC1ma2@cluster0-zxgud.mongodb.net/test?retryWrites=true&w=majority";
-
-// const uri = "mongodb+srv://ryan:ZToO0nmvcqwC1ma2@cluster0-zxgud.mongodb.net/test?retryWrites=true&w=majority";
-// let db;
-// MongoClient.connect(uri, (err, client) => {
-//   db = client.db('library')
-//   // const collection = client.db("test").collection("devices");
-//   // // perform actions on the collection object
-//   // client.close();
-// });
 const User = require('./models').User;
 const Book = require('./models').Book;
 
@@ -64,11 +55,6 @@ app.post('/books',authenticate, async(req,res)=>{
 
 //Edit Books
 app.patch('/books/:id',authenticate,async (req, res)=>{
-  let patchObject = {
-    id:'',
-    title: '',
-    user:'derived from req'
-  }
   const _id = req.params.id
   const updates = Object.keys(req.body);
   const allowedUpdates = ["description", "title"]
@@ -80,6 +66,7 @@ app.patch('/books/:id',authenticate,async (req, res)=>{
       res.status(404).send();
   }
   try {
+      console.log(req.user)
       const book = await Book.findOne({_id: req.params.id, createdBy:req.user._id})
 
      if(!book){

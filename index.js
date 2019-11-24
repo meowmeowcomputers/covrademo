@@ -145,4 +145,6 @@ app.post('/users/logout', authenticate, async (req, res) => {
     }
 })
 
-app.listen(3050);
+app.listen(process.env.PORT || 3050, function(){
+  console.log("Express server listening on port %d in %s mode", this.address().port, app.settings.env);
+});

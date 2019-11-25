@@ -41,7 +41,7 @@ Using this API
 #### Using the endpoints ####
 * `{BaseURL}/users/signup`
   * Any user can submit a POST to this endpoint to register for a User account
-  * Body format is:
+  * Body format is in raw JSON:
       ```
       {
 	       "userName": "userName",
@@ -64,7 +64,7 @@ Using this API
 * `{BaseURL}/books`
   * A user will need a valid bearer token in the request header to use this endpoint.
   * A GET to this endpoint will return all the books in the database.
-  * A POST to this endpoint will add a book to the database. Body format is:
+  * A POST to this endpoint will add a book to the database. Body format is in raw JSON:
       ```
       {
          "author": "Author Name",
@@ -76,7 +76,7 @@ Using this API
 * `{BaseURL}/books/:id`
   * A user will need a valid bearer token in the request header to use this endpoint.
   * A GET request to this endpoint will return a book, if the ID exists in the database.
-  * A PATCH request to this endpoint will modify the book if the ID exists in the database. Body format is:
+  * A PATCH request to this endpoint will modify the book if the ID exists in the database. Body format is in raw JSON:
       ```
       {
          "author": "Author Name",

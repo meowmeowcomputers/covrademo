@@ -139,7 +139,7 @@ router.post('/users/login', async (req, res) => {
 // Logout
 router.post('/users/logout', authenticate, async (req, res) => {
   try {
-    req.user.token = req.user.token.filter((token) => token.token !== req.token);
+    req.user.token = '';
     await req.user.save();
     res.send();
   } catch (error) {

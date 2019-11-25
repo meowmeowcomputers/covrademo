@@ -9,8 +9,18 @@ const { Books } = require('./models');
 // Get all the books
 router.get('/books', authenticate, async (req, res) => {
   try {
-    const books = await Books.find({});
+    let books = await Books.find({});
     res.send(books);
+  } catch (error) {
+    res.status(500).send();
+  }
+});
+
+// Get a specific book
+router.get('/books/:id', authenticate, async (req, res) => {
+  try {
+    let book = await Books.findOne({_id:req.id});
+    res.send(book);
   } catch (error) {
     res.status(500).send();
   }
@@ -58,7 +68,6 @@ router.patch('/books/:id', authenticate, async (req, res) => {
     res.status(404).send({ error: 'Not Found!' });
   }
   try {
-    console.log(req.body)
     // Check if admin. If admin, user not limited to their own books to edit.
     let queryObject = checkAdmin(req.user, _id);
     let book = await Books.findOne(queryObject);
@@ -101,6 +110,11 @@ router.post('/users/newadmin', authenticate, async (req, res) => {
   let isValidOperation = validateFields(req.body, allowedInserts);
   if (!isValidOperation) {
     res.status(400).send({ error: 'Invalid Operation!' });
+  }
+  let insertObject = {
+    userName: req.body.userName,
+    password: req.body.password,
+    userType: 'admin'
   }
   let user = new User(req.body);
   try {

@@ -2,8 +2,10 @@ const express = require("express");
 const app = express();
 const parser = require("body-parser");
 const routes = require("./app/routes")
-require('./app/connection');
-require('dotenv').config();
+//Connect to mongodb database
+require("./app/connection");
+//Look for .env configuration file to use environmental variables
+require("dotenv").config();
 
 app.use( parser.json() );
 

@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
+//Look for .env configuration file to use environmental variables
 require('dotenv').config();
+//The URI to connect to a mongodb database is in the environment variable URI
 const uri = process.env.URI;
 
 mongoose.connect(uri, {

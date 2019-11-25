@@ -26,17 +26,17 @@ Using this API
 =============
 #### Installing the package ####
 1. Prerequisites
-  i. Node.js version 10 or higher (Important! Heavy use of async/await!)
-  ii. NPM version 6 or higher
-  iii. A valid MongoDB connection string URI to a MongoDB database
+  1. Node.js version 10 or higher (Important! Heavy use of async/await!)
+  2. NPM version 6 or higher
+  3. A valid MongoDB connection string URI to a MongoDB database
 2. Download the repository
-  i. `git clone git@github.com:meowmeowcomputers/covrademo.git`
+  1. `git clone git@github.com:meowmeowcomputers/covrademo.git`
 3. Install dependencies
-  i. Navigate to cloned repo
-  ii. `npm install`
+  1. Navigate to cloned repo
+  2. `npm install`
 4. Run application
-  i. Create a .env file with the line `URI=yourURIhere` so the application can connect to the database.
-  ii. Run `npm start`
+  1. Create a .env file with the line `URI=yourURIhere` so the application can connect to the database.
+  2. Run `npm start`
 
 #### Using the endpoints ####
 * `{BaseURL}\users\signup`

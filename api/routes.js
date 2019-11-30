@@ -19,7 +19,7 @@ router.get('/books', authenticate, async (req, res) => {
 // Get a specific book
 router.get('/books/:id', authenticate, async (req, res) => {
   try {
-    let book = await Books.findOne({_id:req.id});
+    let book = await Books.findOne({_id:req.params.id});
     res.send(book);
   } catch (error) {
     res.status(500).send();
@@ -69,17 +69,92 @@ router.patch('/books/:id', authenticate, async (req, res) => {
   }
   try {
     // Check if admin. If admin, user not limited to their own books to edit.
-    let queryObject = checkAdmin(req.user, _id);
+    let queryObject = adminScope(req.user, _id);
     let book = await Books.findOne(queryObject);
-
     if (!book) {
       res.status(404).send();
     }
 
     updates.forEach((update) => book[update] = req.body[update]);
     await book.save();
-
     res.send(book);
+  } catch (error) {
+    res.status(400).send();
+  }
+});
+
+//Find users
+router.get('/users', authenticate, async (req, res) => {
+  try {
+    let userList;
+    // Check if admin. If admin, user not limited to themselves to find.
+    if (req.user.userType !== 'admin'){
+     userList = await User.findOne({_id:req.user._id})
+   } else {
+     userList = await User.find({});
+   }
+
+    if (!userList) {
+      res.status(404).send();
+    }
+
+    res.send(userList);
+  } catch (error) {
+    res.status(400).send();
+  }
+});
+
+//Find a user
+router.get('/users/:id', authenticate, async (req, res) => {
+  try {
+    let user;
+    // Check if admin. If admin, user not limited to themselves to find.
+    if (req.user.userType !== 'admin'){
+      if(req.user._id !== req.id){
+        res.status(403).send();
+      }
+    }
+    user = await User.findOne({_id:req.params.id});
+    if (!user) {
+      res.status(404).send();
+    }
+
+    res.send(user);
+  } catch (error) {
+    res.status(400).send();
+  }
+});
+
+//Edit users
+router.patch('/users/:id', authenticate, async (req, res) => {
+  let _id = req.params.id;
+  let updates = Object.keys(req.body);
+  let allowedUpdates = ['userName', 'password'];
+  let isValidOperation = validateFields(req.body, allowedUpdates);
+  if (!isValidOperation) {
+    res.status(400).send({ error: 'Invalid Operation!' });
+  }
+  if (!ObjectID.isValid(_id)) {
+    res.status(404).send({ error: 'Not Found!' });
+  }
+  try {
+    // Check if admin. If admin, user not limited to themselves to edit.
+    if (req.user.userType !== 'admin'){
+      if (req.user._id!==_id){
+        res.status(403).send();
+      }
+    }
+    let user = await User.findOne({_id:_id});
+    if (!user) {
+      res.status(404).send();
+    }
+
+    updates.forEach((update) => user[update] = req.body[update]);
+    //Keep userType the same as model tries to default to 'user'.
+    // Users cannot upgrade to admin status
+    user.userType = user.userType;
+    await user.save();
+    res.send(user);
   } catch (error) {
     res.status(400).send();
   }
@@ -103,6 +178,7 @@ router.post('/users/signup', async (req, res) => {
 
 // Add Admins
 router.post('/users/newadmin', authenticate, async (req, res) => {
+  //Only admins can add admin accounts
   if (req.user.userType !== 'admin'){
     res.status(403).send();
   }
@@ -147,21 +223,51 @@ router.post('/users/logout', authenticate, async (req, res) => {
   }
 });
 
+//Delete users
+router.delete('/users/:id', authenticate, async (req, res) => {
+  let _id = req.params.id;
+  let updates = Object.keys(req.body);
+  let allowedUpdates = ['userName', 'password'];
+  let isValidOperation = validateFields(req.body, allowedUpdates);
+  if (!isValidOperation) {
+    res.status(400).send({ error: 'Invalid Operation!' });
+  }
+  if (!ObjectID.isValid(_id)) {
+    res.status(404).send({ error: 'Not Found!' });
+  }
+  try {
+    // Check if admin. If admin, user not limited to themselves to delete.
+    if (req.user.userType !== 'admin'){
+      if (req.user._id!==_id){
+        res.status(403).send();
+      }
+    }
+    let user = await User.findOneAndDelete({_id:_id});
+    if (!user) {
+      res.status(404).send();
+    }
+    
+    res.send(user);
+  } catch (error) {
+    res.status(400).send();
+  }
+});
+
 // Delete books
 router.delete('/books/:id', authenticate, async (req, res) => {
-  const _id = req.params.id;
+  let _id = req.params.id;
 
   if (!ObjectID.isValid(req.user._id)) {
     return res.status(404).send();
   }
 
   try {
-    const queryObject = checkAdmin(req.user, _id);
-    const deletepost = await Books.findOneAndDelete(queryObject);
-    if (!deletepost) {
+    let queryObject = adminScope(req.user, _id);
+    let deleteBook = await Books.findOneAndDelete(queryObject);
+    if (!deleteBook) {
       return res.status(404).send();
     }
-    res.send(deletepost);
+    res.send(deleteBook);
   } catch (error) {
     res.status(500).send();
   }
@@ -176,7 +282,7 @@ function validateFields(body, allowedFields) {
 }
 
 // Function to check admin priveliges and return a more open queryObject not restrained by createdBy
-function checkAdmin(user, id) {
+function adminScope(user, id) {
   let queryObject;
   if (user.userType === 'admin') {
     queryObject = { _id: id };

@@ -92,3 +92,21 @@ Using this API
 * `{BaseURL}/users/newadmin`
   * A user will need a valid bearer token in the request header to use this endpoint. A user must have an admin account in order to use this endpoint.
   * A POST request to this endpoint will create a new Administrator account. Administrator accounts can add, delete, and modify any book.
+* `{BaseURL}/users`
+  * A user will need a valid bearer token in the request header to use this endpoint.
+  * A GET request will return a list of all users in the database. If a user is not an admin,
+  then this endpoint will only return themselves.
+* `{BaseURL}/users/:id`
+  * A user will need a valid bearer token in the request header to use this endpoint.
+  * A GET request will return a specified user by ID, if it exists. If a user is not an admin,
+  then this endpoint will only return themselves if the correct ID is supplied.
+  * Submitting a PATCH request to this endpoint with this body (either field is optional)
+  will edit the user. Admins can edit anyone, and users can edit themselves. This can be used
+  to change a userName or password. Users cannot be upgraded to admins. Admins cannot be downgraded to users.
+      ```
+      {
+         "userName": "userName",
+         "password": "password"
+      }
+      ```
+  * A DELETE request will delete this user. Admins can delete anyone, and users can delete themselves.

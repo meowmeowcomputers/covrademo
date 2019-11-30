@@ -88,7 +88,7 @@ UserSchema.statics.checkValidCredentials = async (userName, password) => {
   if (!isMatch) {
     throw new Error('Unable to login, user/password combination not found');
   }
-  //
+
   return user;
 };
 

@@ -1,13 +1,12 @@
 const { ObjectID } = require('mongodb');
 const express = require('express');
 const authenticate = require('./authenticate');
-
 const router = new express.Router();
-const { User } = require('./models');
-const { Books } = require('./models');
+const { User } = require('../db/models');
+const { Books } = require('../db/models');
 
 // Get all the books
-router.get('/books', authenticate, async (req, res) => {
+router.get('/rest/books', authenticate, async (req, res) => {
   try {
     let books = await Books.find({});
     res.send(books);
@@ -17,7 +16,7 @@ router.get('/books', authenticate, async (req, res) => {
 });
 
 // Get a specific book
-router.get('/books/:id', authenticate, async (req, res) => {
+router.get('/rest/books/:id', authenticate, async (req, res) => {
   try {
     let book = await Books.findOne({_id:req.params.id});
     res.send(book);
@@ -27,7 +26,7 @@ router.get('/books/:id', authenticate, async (req, res) => {
 });
 
 // Get user's own books
-router.get('/books/myown', authenticate, async (req, res) => {
+router.get('/rest/books/myown', authenticate, async (req, res) => {
   try {
     let books = await Books.find({ createdBy: req.user._id });
     res.send(books);
@@ -37,7 +36,7 @@ router.get('/books/myown', authenticate, async (req, res) => {
 });
 
 // Create Books
-router.post('/books', authenticate, async (req, res) => {
+router.post('/rest/books', authenticate, async (req, res) => {
   let allowedInserts = ['author', 'title'];
   let isValidOperation = validateFields(req.body, allowedInserts);
   if (!isValidOperation) {
@@ -56,7 +55,7 @@ router.post('/books', authenticate, async (req, res) => {
 });
 
 // Edit Books
-router.patch('/books/:id', authenticate, async (req, res) => {
+router.patch('/rest/books/:id', authenticate, async (req, res) => {
   let _id = req.params.id;
   let updates = Object.keys(req.body);
   let allowedUpdates = ['author', 'title'];
@@ -84,7 +83,7 @@ router.patch('/books/:id', authenticate, async (req, res) => {
 });
 
 //Find users
-router.get('/users', authenticate, async (req, res) => {
+router.get('/rest/users', authenticate, async (req, res) => {
   try {
     let userList;
     // Check if admin. If admin, user not limited to themselves to find.
@@ -105,7 +104,7 @@ router.get('/users', authenticate, async (req, res) => {
 });
 
 //Find a user
-router.get('/users/:id', authenticate, async (req, res) => {
+router.get('/rest/users/:id', authenticate, async (req, res) => {
   try {
     let user;
     // Check if admin. If admin, user not limited to themselves to find.
@@ -126,7 +125,7 @@ router.get('/users/:id', authenticate, async (req, res) => {
 });
 
 //Edit users
-router.patch('/users/:id', authenticate, async (req, res) => {
+router.patch('/rest/users/:id', authenticate, async (req, res) => {
   let _id = req.params.id;
   let updates = Object.keys(req.body);
   let allowedUpdates = ['userName', 'password'];
@@ -161,7 +160,8 @@ router.patch('/users/:id', authenticate, async (req, res) => {
 });
 
 // Add Users
-router.post('/users/signup', async (req, res) => {
+router.post('/rest/users/signup', async (req, res) => {
+  console.log(req.body)
   let allowedInserts = ['userName', 'password'];
   let isValidOperation = validateFields(req.body, allowedInserts);
   if (!isValidOperation) {
@@ -177,7 +177,7 @@ router.post('/users/signup', async (req, res) => {
 });
 
 // Add Admins
-router.post('/users/newadmin', authenticate, async (req, res) => {
+router.post('/rest/users/newadmin', authenticate, async (req, res) => {
   //Only admins can add admin accounts
   if (req.user.userType !== 'admin'){
     res.status(403).send();
@@ -202,7 +202,7 @@ router.post('/users/newadmin', authenticate, async (req, res) => {
 });
 
 // Login
-router.post('/users/login', async (req, res) => {
+router.post('/rest/users/login', async (req, res) => {
   try {
     let user = await User.checkValidCredentials(req.body.userName, req.body.password);
     let token = await user.newAuthToken();
@@ -213,7 +213,7 @@ router.post('/users/login', async (req, res) => {
 });
 
 // Logout
-router.post('/users/logout', authenticate, async (req, res) => {
+router.post('/rest/users/logout', authenticate, async (req, res) => {
   try {
     req.user.token = '';
     await req.user.save();
@@ -224,7 +224,7 @@ router.post('/users/logout', authenticate, async (req, res) => {
 });
 
 //Delete users
-router.delete('/users/:id', authenticate, async (req, res) => {
+router.delete('/rest/users/:id', authenticate, async (req, res) => {
   let _id = req.params.id;
   let updates = Object.keys(req.body);
   let allowedUpdates = ['userName', 'password'];
@@ -246,7 +246,7 @@ router.delete('/users/:id', authenticate, async (req, res) => {
     if (!user) {
       res.status(404).send();
     }
-    
+
     res.send(user);
   } catch (error) {
     res.status(400).send();
@@ -254,7 +254,7 @@ router.delete('/users/:id', authenticate, async (req, res) => {
 });
 
 // Delete books
-router.delete('/books/:id', authenticate, async (req, res) => {
+router.delete('/rest/books/:id', authenticate, async (req, res) => {
   let _id = req.params.id;
 
   if (!ObjectID.isValid(req.user._id)) {

@@ -1,3 +1,5 @@
+/*jshint esversion: 9 */
+
 const { User } = require('../db/models');
 const { Books } = require('../db/models')
 const bcrypt = require('bcryptjs')
@@ -147,7 +149,7 @@ const resolvers = {
           delete args.id
         }
         let deleteThisBook;
-        let thisUser = await User.findOne({_id:user.id})
+        let thisUser = await User.findOne({_id:user._id});
         //Admins can delete any book, while users can delete only their books
         if(isAdmin(thisUser)){
           deleteThisBook = await Books.findOneAndDelete(args);
@@ -194,7 +196,9 @@ const resolvers = {
         console.log(queryObject)
         let bookToEdit = await Books.findOne(queryObject);
         console.log(bookToEdit)
-
+        if(!bookToEdit){
+          throw new Error('Book not found!')
+        }
         updates.forEach((update) => bookToEdit[update] = input[update]);
         bookToEdit.save();
         return bookToEdit

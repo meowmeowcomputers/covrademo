@@ -1,3 +1,5 @@
+/*jshint esversion: 9 */ 
+
 const mongoose = require('mongoose');
 //Look for .env configuration file to use environmental variables
 require('dotenv').config();

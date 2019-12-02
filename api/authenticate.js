@@ -1,3 +1,4 @@
+/*jshint esversion: 9 */
 
 const jwt = require('jsonwebtoken');
 const { User } = require('../db/models');

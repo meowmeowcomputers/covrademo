@@ -1,3 +1,5 @@
+/*jshint esversion: 9 */
+
 const { ObjectID } = require('mongodb');
 const express = require('express');
 const authenticate = require('./authenticate');
@@ -192,7 +194,7 @@ router.post('/rest/users/newadmin', authenticate, async (req, res) => {
     password: req.body.password,
     userType: 'admin'
   }
-  let user = new User(req.body);
+  let user = new User(insertObject);
   try {
     await user.newAuthToken();
     res.status(201).send({ user });
